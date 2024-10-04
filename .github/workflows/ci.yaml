@@ -44,7 +44,6 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v2
             - name: Build docker image
-              working-directory: go-web-app-EKS-DevOps
               run: |
                 sh 'docker build -t ${AWS_ECR_REPO_NAME} -f Dockerfile .'
     
@@ -70,7 +69,6 @@ jobs:
           - name: Checkout code
             uses: actions/checkout@v2   
           - name: Update helm chart
-            working-directory: helm/go-web-app-chart
             run: |
               BUILD_NUMBER=${BUILD_NUMBER}
               echo $BUILD_NUMBER
