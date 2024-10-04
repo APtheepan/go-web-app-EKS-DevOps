@@ -31,6 +31,8 @@ jobs:
     code-quality:
       runs-on: ubuntu-latest
       steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
         - name: Run golangci-lint
           uses: golangci/golangci-lint-action@v6
           with:
@@ -39,6 +41,8 @@ jobs:
     docker-image-build:
         runs-on: ubuntu-latest  
         steps:        
+            - name: Checkout code
+              uses: actions/checkout@v2
             - name: Build docker image
               working-directory: go-web-app-EKS-DevOps
               run: |
@@ -47,6 +51,8 @@ jobs:
     ECR-image-push:
         runs-on: ubuntu-latest
         steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
             - name: Login to Amazon ECR
               id: login-ecr
               run: aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com
@@ -61,6 +67,8 @@ jobs:
           GITHUB_USER: APtheepan
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         steps:
+          - name: Checkout code
+            uses: actions/checkout@v2   
           - name: Update helm chart
             working-directory: helm/go-web-app-chart
             run: |
