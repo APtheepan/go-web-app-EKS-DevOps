@@ -9,9 +9,9 @@ on:
       - 'helm/**'
 env:
   AWS_REGION: us-east-1
-  AWS_ACCOUNT_ID: ${{ env.AWS_ACCOUNT_ID }}
-  AWS_ECR_REPO_NAME: ${{ env.AWS_ECR_REPO_NAME }}
-  REPOSITORY_URI: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_ECR_REPO_NAME}
+  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+  AWS_ECR_REPO_NAME: ${{ vars.AWS_ECR_REPO_NAME }}
+  REPOSITORY_URI: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_ECR_REPO_NAME}
   
 jobs:
     build:
@@ -47,10 +47,10 @@ jobs:
         steps:
             - name: Login to Amazon ECR
               id: login-ecr
-              run: aws ecr get-login-password --region ${AWS_REGION } | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID }.dkr.ecr.${AWS_REGION}.amazonaws.com
+              run: aws ecr get-login-password --region ${AWS_REGION } | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com
             - name: Push image to Amazon ECR
-              run: docker tag ${AWS_ECR_REPO_NAME} ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${{github.run_id}}
-                   docker push ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${{github.run_id}}
+              run: docker tag ${AWS_ECR_REPO_NAME } ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${{github.run_id}}
+                   docker push ${REPOSITORY_URI}${AWS_ECR_REPO_NAME }:${{github.run_id}}
     
     Update_helm_chart:
         runs-on: ubuntu-latest
@@ -59,7 +59,6 @@ jobs:
           GITHUB_USER: APtheepan
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         steps:
-
           - name: Update helm chart
             working-directory: go-web-app-EKS-DevOps/helm/go-web-app-chart
             run: |
