@@ -37,9 +37,11 @@ jobs:
            version: v1.56.2
     
     docker-image-build:
-        runs-on: ubuntu-latest
-        steps:
-            - run: |
+        runs-on: ubuntu-latest  
+        steps:        
+            - name: Build docker image
+              working-directory: go-web-app-EKS-DevOps
+              run: |
                 sh 'docker build -t ${AWS_ECR_REPO_NAME} -f Dockerfile .'
     
     ECR-image-push:
@@ -47,9 +49,9 @@ jobs:
         steps:
             - name: Login to Amazon ECR
               id: login-ecr
-              run: aws ecr get-login-password --region ${AWS_REGION } | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com
+              run: aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com
             - name: Push image to Amazon ECR
-              run: docker tag ${AWS_ECR_REPO_NAME } ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${{github.run_id}}
+              run: docker tag ${AWS_ECR_REPO_NAME} ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${{github.run_id}}
                    docker push ${REPOSITORY_URI}${AWS_ECR_REPO_NAME }:${{github.run_id}}
     
     Update_helm_chart:
@@ -60,7 +62,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         steps:
           - name: Update helm chart
-            working-directory: go-web-app-EKS-DevOps/helm/go-web-app-chart
+            working-directory: helm/go-web-app-chart
             run: |
               BUILD_NUMBER=${BUILD_NUMBER}
               echo $BUILD_NUMBER
