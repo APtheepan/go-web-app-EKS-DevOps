@@ -8,10 +8,10 @@ on:
       - 'README.md'
       - 'helm/**'
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: ${{ vars.AWS_REGION }}
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
   AWS_ECR_REPO_NAME: ${{ vars.AWS_ECR_REPO_NAME }}
-  REPOSITORY_URI: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_ECR_REPO_NAME}
+  REPOSITORY_URI: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/${{ vars.AWS_ECR_REPO_NAME }}
   
 jobs:
     build:
@@ -45,7 +45,7 @@ jobs:
               uses: actions/checkout@v2
             - name: Build docker image
               run: |
-                sh 'docker build -t ${AWS_ECR_REPO_NAME} -f Dockerfile .'
+                sh 'docker build -t ${{env.AWS_ECR_REPO_NAME}} -f Dockerfile .'
     
     ECR-image-push:
         runs-on: ubuntu-latest
@@ -60,10 +60,10 @@ jobs:
                 aws-region: ${{ env.AWS_REGION }}
             - name: Login to Amazon ECR
               id: login-ecr
-              run: aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${AWS_REGION}.amazonaws.com
+              run: aws ecr get-login-password --region ${{env.AWS_REGION}} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com
             - name: Push image to Amazon ECR
-              run: docker tag ${AWS_ECR_REPO_NAME} ${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:${{github.run_id}}
-                   docker push ${REPOSITORY_URI}${AWS_ECR_REPO_NAME }:${{github.run_id}}
+              run: docker tag ${{env.AWS_ECR_REPO_NAME}} ${{env.REPOSITORY_URI}}${{env.AWS_ECR_REPO_NAME}}:${{github.run_id}}
+                   docker push ${{env.REPOSITORY_URI}}${{env.AWS_ECR_REPO_NAME}}:${{github.run_id}}
     
     Update_helm_chart:
         runs-on: ubuntu-latest
@@ -76,14 +76,14 @@ jobs:
             uses: actions/checkout@v2   
           - name: Update helm chart
             run: |
-              BUILD_NUMBER=${BUILD_NUMBER}
+              BUILD_NUMBER=${{github.run_id}}
               echo $BUILD_NUMBER
               imageTag=$(grep -oP '(?<=helm:)[^ ]+' values.yaml)
               echo $imageTag
               sed -i 's/tag: .*/tag: "${{github.run_id}}"/' helm/go-web-app-chart/values.yaml
               git add values.yaml
               git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
-              git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+              git push https://${{ env.GITHUB_TOKEN }}@github.com/${{ env.GIT_USER_NAME }}/${{ env.GIT_REPO_NAME }} HEAD:main
  
               
 
