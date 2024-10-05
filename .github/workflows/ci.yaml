@@ -68,27 +68,26 @@ jobs:
             - name: Push image to Amazon ECR
               run: docker push ${{env.REPOSITORY_URI}}${{env.AWS_ECR_REPO_NAME}}:${{github.run_id}}
     
-    Update_helm_chart:
-        runs-on: ubuntu-latest
-        needs: docker-image-build_ECR-image-push
-        defaults:
-          run:
-            working-directory: helm/go-web-app-chart
-        steps:
-          - name: Checkout code
-            uses: actions/checkout@v2   
-          - name: Update helm chart
-            run: |
-              BUILD_NUMBER=${{github.run_id}}
-              echo ${BUILD_NUMBER}
-              imageTag=$(grep -oP '(?<=helm:)[^ ]+' values.yaml)
-              echo ${imageTag}
-              sed -i 's/tag: .*/tag: "${{github.run_id}}"/' helm/go-web-app-chart/values.yaml
-              git add helm/go-web-app-chart/values.yaml
-              git commit -m "Update deployment Image to version \${{github.run_id}}"
-              git push https://${{ env.GITHUB_TOKEN }}@github.com/${{ env.GITHUB_USER }}/${{ env.GITHUB_REPO }} HEAD:main
- 
-              
+    update-newtag-in-helm-chart:
+      runs-on: ubuntu-latest
+
+      needs: docker-image-build_ECR-image-push
+
+      steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.TOKEN }}
+
+      - name: Update tag in Helm chart
+        run: |
+          sed -i 's/tag: .*/tag: "${{github.run_id}}"/' helm/go-web-app-chart/values.yaml
+
+      - name: Commit and push changes
+        run: |
+          git add helm/go-web-app-chart/values.yaml
+          git commit -m "Update tag in Helm chart ${{github.run_id}}"
+          git push
 
           
 
