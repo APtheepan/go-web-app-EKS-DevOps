@@ -39,16 +39,13 @@ jobs:
            version: v1.56.2
     
     docker-image-build:
-        defaults:
-          run:
-            working-directory: go-web-app-EKS-DevOps
         runs-on: ubuntu-latest  
         steps:        
             - name: Checkout code
               uses: actions/checkout@v2
             - name: Build docker image
               run: |
-                docker build -t ${{env.AWS_ECR_REPO_NAME}} .            
+                docker build -t ${{env.AWS_ECR_REPO_NAME}} -f Dockerfile .            
     
                 
     ECR-image-push:
