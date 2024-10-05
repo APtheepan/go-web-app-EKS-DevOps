@@ -1,6 +1,7 @@
 # Service for the application
 apiVersion: v1
 kind: Service
+namespace: go-web-app
 metadata:
   name: go-web-app
   labels:

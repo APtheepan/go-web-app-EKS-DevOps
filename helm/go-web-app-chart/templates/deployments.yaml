@@ -2,6 +2,7 @@
 # This is a sample deployment manifest file for a simple web application.
 apiVersion: apps/v1
 kind: Deployment
+namespace: go-web-app
 metadata:
   name: go-web-app
   labels:
