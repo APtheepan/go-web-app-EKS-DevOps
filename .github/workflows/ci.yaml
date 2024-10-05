@@ -39,6 +39,9 @@ jobs:
            version: v1.56.2
     
     docker-image-build:
+        defaults:
+          run:
+            working-directory: go-web-app-EKS-DevOps
         runs-on: ubuntu-latest  
         steps:        
             - name: Checkout code
@@ -62,8 +65,9 @@ jobs:
               id: login-ecr
               run: aws ecr get-login-password --region ${{env.AWS_REGION}} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{env.AWS_REGION}}.amazonaws.com
             - name: Push image to Amazon ECR
-              run: docker tag ${{env.AWS_ECR_REPO_NAME}} ${{env.REPOSITORY_URI}}${{env.AWS_ECR_REPO_NAME}}:${{github.run_id}}
-                   docker push ${{env.REPOSITORY_URI}}${{env.AWS_ECR_REPO_NAME}}:${{github.run_id}}
+              run: |
+                docker tag ${{env.AWS_ECR_REPO_NAME}} ${{env.REPOSITORY_URI}}${{env.AWS_ECR_REPO_NAME}}:${{github.run_id}}
+                docker push ${{env.REPOSITORY_URI}}${{env.AWS_ECR_REPO_NAME}}:${{github.run_id}}
     
     Update_helm_chart:
         runs-on: ubuntu-latest
@@ -71,6 +75,9 @@ jobs:
           GITHUB_REPO: https://github.com/APtheepan/go-web-app-EKS-DevOps.git
           GITHUB_USER: APtheepan
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        defaults:
+          run:
+            working-directory: helm/go-web-app-chart
         steps:
           - name: Checkout code
             uses: actions/checkout@v2   
