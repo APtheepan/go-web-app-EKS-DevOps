@@ -12,7 +12,7 @@ env:
   AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
   AWS_ECR_REPO_NAME: ${{ vars.AWS_ECR_REPO_NAME }}
   REPOSITORY_URI: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/
-  GITHUB_REPO: https://github.com/APtheepan/go-web-app-EKS-DevOps.git
+  GITHUB_REPO: go-web-app-EKS-DevOps.git
   GITHUB_USER: APtheepan
   GITHUB_TOKEN: ${{ secrets.TOKEN }}
 jobs:
@@ -80,9 +80,9 @@ jobs:
           - name: Update helm chart
             run: |
               BUILD_NUMBER=${{github.run_id}}
-              echo $BUILD_NUMBER
+              echo ${BUILD_NUMBER}
               imageTag=$(grep -oP '(?<=helm:)[^ ]+' values.yaml)
-              echo $imageTag
+              echo ${imageTag}
               sed -i 's/tag: .*/tag: "${{github.run_id}}"/' helm/go-web-app-chart/values.yaml
               git add values.yaml
               git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
