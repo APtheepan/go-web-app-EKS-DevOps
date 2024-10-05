@@ -79,8 +79,6 @@ jobs:
             uses: actions/checkout@v2   
           - name: Update helm chart
             run: |
-              git config --global user.email "abhisfwek@gmail.com"
-              git config --global user.name "Abhiswegwhek Veeramvwealla"
               BUILD_NUMBER=${{github.run_id}}
               echo ${BUILD_NUMBER}
               imageTag=$(grep -oP '(?<=helm:)[^ ]+' values.yaml)
@@ -88,7 +86,7 @@ jobs:
               sed -i 's/tag: .*/tag: "${{github.run_id}}"/' helm/go-web-app-chart/values.yaml
               git add values.yaml
               git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
-              git push https://${{ env.GITHUB_TOKEN }}@github.com/${{ env.GIT_USER_NAME }}/${{ env.GIT_REPO_NAME }} HEAD:main
+              git push https://${{ env.GITHUB_TOKEN }}@github.com/${{ env.GITHUB_USER }}/${{ env.GITHUB_REPO }} HEAD:main
  
               
 
